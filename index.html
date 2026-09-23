@@ -1,0 +1,332 @@
+```html
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TET-II Study Schedule & Quiz Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Glassmorphism styling matching the exact uploaded reference */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 10px 30px 0 rgba(31, 38, 135, 0.15);
+        }
+        .glass-card {
+            background: rgba(30, 27, 75, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 72, 153, 0.25);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(236, 72, 153, 0.6);
+            box-shadow: 0 6px 20px rgba(217, 70, 239, 0.3);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(217, 70, 239, 0.5);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 bg-slate-950 transition-colors duration-500 relative overflow-x-hidden" id="mainBody">
+
+    <!-- Background Container -->
+    <div id="bgContainer" class="fixed inset-0 z-0 bg-cover bg-center transition-all duration-700" style="background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #09090b 100%);">
+        <div class="absolute inset-0 bg-slate-950/75 dark:bg-slate-950/80 light:bg-white/40 transition-colors" id="bgOverlay"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="relative z-10 container mx-auto px-4 py-6 max-w-7xl flex flex-col min-h-screen justify-between">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 glass-panel p-4 md:p-5 rounded-3xl">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-wide bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent italic drop-shadow">
+                    TET-II Study Schedule Dashboard
+                </h1>
+                <p id="greetingText" class="text-xs md:text-sm font-medium text-pink-300 mt-1 animate-pulse">
+                    ✨ Good Morning, Niki! Let's conquer your goals today! ✨
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <button type="button" onclick="openSettingsModal()" class="px-4 py-2.5 rounded-2xl text-sm font-semibold glass-card text-pink-300 hover:text-white flex items-center gap-2 border border-pink-500/40 transition shadow-lg cursor-pointer">
+                    ⚙️ Settings & Controls
+                </button>
+                <button type="button" onclick="toggleDarkMode()" id="darkModeBtn" class="px-4 py-2.5 rounded-2xl text-sm font-semibold glass-card text-purple-300 hover:text-white flex items-center gap-2 border border-purple-500/40 transition shadow-lg cursor-pointer">
+                    🌓 Light / Dark
+                </button>
+            </div>
+        </header>
+
+        <!-- Schedule Dashboard Table Grid -->
+        <main class="flex-grow mb-8">
+            <div class="glass-panel p-4 md:p-6 rounded-3xl overflow-x-auto shadow-2xl backdrop-blur-xl">
+                <div class="min-w-[850px]">
+                    <!-- Table Header -->
+                    <div class="grid grid-cols-5 gap-3 mb-4 text-center">
+                        <div class="p-3 rounded-2xl glass-card font-bold text-indigo-300 text-sm tracking-wider uppercase border border-indigo-500/30">Day</div>
+                        <div class="p-3 rounded-2xl glass-card font-bold text-indigo-300 text-sm tracking-wider uppercase border border-indigo-500/30">Morning 1</div>
+                        <div class="p-3 rounded-2xl glass-card font-bold text-indigo-300 text-sm tracking-wider uppercase border border-indigo-500/30">Morning 2</div>
+                        <div class="p-3 rounded-2xl glass-card font-bold text-indigo-300 text-sm tracking-wider uppercase border border-indigo-500/30">Evening 1</div>
+                        <div class="p-3 rounded-2xl glass-card font-bold text-indigo-300 text-sm tracking-wider uppercase border border-indigo-500/30">Evening 2</div>
+                    </div>
+
+                    <!-- Table Body (Dynamic Rows) -->
+                    <div id="scheduleGridBody" class="space-y-3">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer Note -->
+        <footer class="text-center text-xs md:text-sm text-indigo-200/80 py-3 glass-panel rounded-2xl">
+            Click any subject card to start interactive quiz! Use `Settings & Controls` to change background photo or upload custom question bank file.
+        </footer>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quizModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-panel w-full max-w-3xl p-6 md:p-8 rounded-3xl shadow-2xl border border-purple-500/40 relative">
+            
+            <!-- Quiz Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                <div>
+                    <span id="quizSubjectBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">Subject</span>
+                    <h2 id="quizTitle" class="text-xl md:text-2xl font-bold text-white mt-1">Quiz Title</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm font-medium text-purple-200">
+                        Question <span id="currentQNum">1</span> of <span id="totalQNum">10</span>
+                    </div>
+                    <button type="button" onclick="closeQuizModal()" class="p-2 rounded-xl glass-card hover:bg-rose-500/25 text-slate-300 hover:text-rose-400 transition cursor-pointer">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Question Area -->
+            <div class="mb-6">
+                <p id="questionText" class="text-lg md:text-xl font-medium text-slate-100 leading-relaxed mb-6">
+                    Loading question...
+                </p>
+
+                <!-- Options List -->
+                <div id="optionsContainer" class="space-y-3">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Quiz Explanation / Feedback Box -->
+            <div id="feedbackBox" class="hidden p-4 rounded-xl mb-6 text-sm font-medium border">
+                <!-- Dynamic feedback -->
+            </div>
+
+            <!-- Quiz Footer Controls (Next, Back, Skip) -->
+            <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                <button type="button" onclick="prevQuestion()" id="prevBtn" class="px-5 py-2.5 rounded-xl glass-card text-sm font-semibold text-slate-300 hover:text-white border border-white/10 transition flex items-center gap-2 cursor-pointer">
+                    ← Back
+                </button>
+                <div class="flex gap-3">
+                    <button type="button" onclick="skipQuestion()" id="skipBtn" class="px-5 py-2.5 rounded-xl glass-card text-sm font-semibold text-amber-300 hover:text-amber-200 border border-amber-500/30 transition cursor-pointer">
+                        Skip ⏭
+                    </button>
+                    <button type="button" onclick="nextQuestion()" id="nextBtn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-sm font-semibold text-white shadow-lg shadow-pink-500/30 hover:opacity-95 transition cursor-pointer">
+                        Next Question →
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Settings & Customization Modal -->
+    <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-panel w-full max-w-2xl p-6 md:p-8 rounded-3xl shadow-2xl border border-indigo-500/40 relative max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    ⚙️ Settings & Controls
+                </h2>
+                <button type="button" onclick="closeSettingsModal()" class="p-2 rounded-xl glass-card hover:bg-rose-500/25 text-slate-300 hover:text-rose-400 transition cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Personal Background Image Uploader -->
+                <div class="glass-card p-4 rounded-2xl border border-white/10">
+                    <h3 class="text-sm font-semibold text-pink-300 mb-2">🖼️ Personal Background Photo Upload</h3>
+                    <p class="text-xs text-slate-300 mb-3">Upload any personal image or topic photo to instantly set as dashboard background.</p>
+                    <input type="file" id="bgImageInput" accept="image/*" onchange="handleBgUpload(event)" class="w-full text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/20 file:text-pink-300 hover:file:bg-pink-500/30 file:cursor-pointer">
+                    <button type="button" onclick="resetBackground()" class="mt-3 px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition cursor-pointer">
+                        Reset Default Background
+                    </button>
+                </div>
+
+                <!-- Custom Question Bank File Uploader (JSON / CSV replacement) -->
+                <div class="glass-card p-4 rounded-2xl border border-white/10">
+                    <h3 class="text-sm font-semibold text-indigo-300 mb-2">📂 Upload New Question Bank (JSON / CSV)</h3>
+                    <p class="text-xs text-slate-300 mb-3">Upload a new question file to completely replace older questions with the new file questions only.</p>
+                    <input type="file" id="questionBankInput" accept=".json,.csv,.txt" onchange="handleQuestionBankUpload(event)" class="w-full text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30 file:cursor-pointer">
+                    <p id="uploadStatus" class="text-xs text-emerald-400 mt-2 font-medium hidden">✓ Question bank successfully updated with new questions!</p>
+                </div>
+
+                <!-- Schedule Subject Name Editor -->
+                <div class="glass-card p-4 rounded-2xl border border-white/10">
+                    <h3 class="text-sm font-semibold text-purple-300 mb-3">📝 Schedule Subject Names Editor</h3>
+                    <div id="subjectEditorList" class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                        <!-- Populated by JS -->
+                    </div>
+                    <button type="button" onclick="saveSubjectEdits()" class="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-xs font-semibold text-white shadow-lg hover:opacity-95 transition cursor-pointer">
+                        Save Subject Name Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-white/10 flex justify-end">
+                <button type="button" onclick="closeSettingsModal()" class="px-5 py-2 rounded-xl bg-slate-800 text-sm font-medium text-slate-200 hover:bg-slate-700 transition cursor-pointer">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Code -->
+    <script>
+        const defaultSchedule = [
+            { day: "Monday", slots: ["Current Affairs", "Nikita", "Mix Grammar", "Core Grammar + Vocabulary"] },
+            { day: "Tuesday", slots: ["E. grammar part 1", "Nikita", "E. grammar part 2", "Sentence Structure & Verb System"] },
+            { day: "Wednesday", slots: ["History", "Nikita", "Language Pedagogy and Skills", "Advanced Grammar"] },
+            { day: "Thursday", slots: ["Child development", "Nikita", "Mix Grammar", "Error & Application Day"] },
+            { day: "Friday", slots: ["E. grammar part 2", "Nikita", "E. grammar part 1", "Vocabulary + Reading + Remaining Topics"] },
+            { day: "Saturday", slots: ["Geography and Civics", "Current Affairs", "Reasoning Part 1", "Reasoning Part 2"] },
+            { day: "Sunday", slots: ["Language Pedagogy and Skills", "General Knowledge", "Mix Quiz", "Inclusive education"] }
+        ];
+
+        // Default Comprehensive Question Bank
+        const defaultQuestionBank = {
+            "Current Affairs": [
+                { q: "Who is the current President of India?", options: ["Droupadi Murmu", "Ram Nath Kovind", "Narendra Modi", "Jagdeep Dhankhar"], ans: 0, exp: "Droupadi Murmu serves as the 15th President of India." },
+                { q: "Which state recently hosted the National Games successfully?", options: ["Goa", "Gujarat", "Uttarakhand", "Maharashtra"], ans: 0, exp: "Goa hosted the National Games successfully." },
+                { q: "What is India's rank in global renewable energy growth deployment?", options: ["Top 4", "Top 10", "Top 20", "Top 30"], ans: 0, exp: "India ranks among the top global leaders in renewable energy deployment." }
+            ],
+            "Nikita": [
+                { q: "What is the primary focus of Child Psychology in TET examinations?", options: ["Cognitive & Emotional development", "Rote memorization", "Physical strength", "Economic background"], ans: 0, exp: "Child psychology emphasizes cognitive, emotional, and social growth stages." },
+                { q: "According to Piaget, at which stage does abstract thinking begin?", options: ["Formal Operational Stage", "Sensorimotor Stage", "Pre-operational Stage", "Concrete Operational Stage"], ans: 0, exp: "Formal operational stage (11+ years) involves abstract logical thought." }
+            ],
+            "Mix Grammar": [
+                { q: "Choose the correct passive voice: 'She writes a letter.'", options: ["A letter is written by her.", "A letter was written by her.", "A letter has been written.", "She is writing a letter."], ans: 0, exp: "Simple present 'writes' converts to 'is written by'." },
+                { q: "Identify the noun phrase in: 'The big brown dog barked loudly.'", options: ["The big brown dog", "barked loudly", "dog barked", "The big"], ans: 0, exp: "'The big brown dog' functions as the subject noun phrase." }
+            ],
+            "History": [
+                { q: "In which year did the Dandi March take place?", options: ["1930", "1920", "1942", "1919"], ans: 0, exp: "Mahatma Gandhi led the Dandi March in March-April 1930." },
+                { q: "Who founded the Satyashodhak Samaj in 1873?", options: ["Jyotirao Phule", "B. R. Ambedkar", "Mahatma Gandhi", "Swami Vivekananda"], ans: 0, exp: "Jyotirao Phule founded Satyashodhak Samaj." }
+            ],
+            "Reasoning Part 1": [
+                { q: "Find the missing number in series: 2, 6, 12, 20, ?", options: ["30", "28", "32", "26"], ans: 0, exp: "Differences are +4, +6, +8, next is +10 (20 + 10 = 30)." },
+                { q: "If CAT is coded as DBU, how is DOG coded?", options: ["EPH", "DOH", "FPH", "EPG"], ans: 0, exp: "Each letter is shifted forward by +1." }
+            ]
+        };
+
+        // Load persisted state or initialize
+        let scheduleData = JSON.parse(localStorage.getItem('tet_schedule_data')) || defaultSchedule;
+        let customQuestionBank = JSON.parse(localStorage.getItem('tet_custom_qb')) || defaultQuestionBank;
+        let userProgress = JSON.parse(localStorage.getItem('tet_user_progress')) || {}; 
+
+        let currentActiveSubject = '';
+        let currentQuestionsList = [];
+        let activeQuestionIndex = 0;
+        let currentQuizState = {}; 
+
+        // Sound Effects (Web Audio API Synthesizer - 100% Volume default)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playCorrectSound() {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime); 
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); 
+                gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } catch(e) { console.log(e); }
+        }
+
+        function playWrongSound() {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.25);
+                gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch(e) { console.log(e); }
+        }
+
+        // Time-based greeting for Niki
+        function initGreeting() {
+            const hour = new Date().getHours();
+            let timeGreet = "Good Morning";
+            if (hour >= 12 && hour < 17) {
+                timeGreet = "Good Afternoon";
+            } else if (hour >= 17) {
+                timeGreet = "Good Evening";
+            }
+            const greetingEl = document.getElementById('greetingText');
+            if (greetingEl) {
+     
